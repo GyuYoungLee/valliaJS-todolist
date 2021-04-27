@@ -9,35 +9,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkbox = document.createElement("input");
     const text = document.createElement("span");
     const button = document.createElement("button");
-
-    // 체크박스 클릭
+    
     checkbox.type = "checkbox";
-    checkbox.addEventListener("change", (event) => {
-      item.style.textDecoration = event.target.checked ? "line-through" : "";
-    });
-
-    // 제거하기 버튼 클릭
-    const key = keyCount;
+    checkbox.addEventListener("change", changeCheckDone);
+    
+    const dataKey = keyCount;
     button.textContent = "제거하기";
     button.style.margin = "5px 10px";
-    button.addEventListener("click", () => removeTodo(key));
+    button.addEventListener("click", () => removeTodo(dataKey));
 
     text.textContent = newData;
-    item.setAttribute("data-key", key);
+    item.setAttribute("data-key", dataKey);
     item.appendChild(checkbox);
     item.appendChild(text);
     item.appendChild(button);
     todoList.appendChild(item);
-  }
+  };
 
+  // 추가하기 버튼 클릭
   const addTodo = () => {
     newData = input.value.trim();
     if (newData === "") return;
 
     // add element
-    addElement(newData)
+    addElement(newData);
 
-    // add data
+    // save data
     let data = JSON.parse(localStorage.getItem("todo"));
     data = data ? [...data, newData] : [newData];
     localStorage.setItem("todo", JSON.stringify(data));
@@ -46,32 +43,39 @@ document.addEventListener("DOMContentLoaded", () => {
     input.value = "";
   };
 
-  const removeTodo = (key) => {
+  // 엔터 키 입력
+  const textKeyUp = (evt) => {
+    const ENTER = 13;
+    if (evt.keyCode === ENTER) addTodo();
+  };
+
+  // 체크박스 클릭
+  const changeCheckDone = (evt) => {
+    evt.target.parentNode.style.textDecoration = evt.target.checked ? "line-through" : "";
+  };
+
+  // 제거하기 버튼 클릭
+  const removeTodo = (dataKey) => {
     // remove element
-    const item = document.querySelector(`[data-key="${key}"]`);
+    const item = document.querySelector(`[data-key="${dataKey}"]`);
     todoList.removeChild(item);
 
-    // remove data
+    // save data
     let data = JSON.parse(localStorage.getItem("todo"));
     data = data.filter((v) => v !== item.children[1].textContent);
     localStorage.setItem("todo", JSON.stringify(data));
   };
 
-  // 추가하기 버튼 클릭
   addButton.addEventListener("click", addTodo);
-  input.addEventListener("keyup", (event) => {
-    const ENTER = 13;
-    if (event.keyCode === ENTER) addTodo();
-  });
-
-  // show
+  input.addEventListener("keyup", textKeyUp);
+  
   const showData = () => {
     const data = JSON.parse(localStorage.getItem("todo"));
     if (!data) return;
 
-    data.forEach(element => {
-      addElement(element)
+    data.forEach((element) => {
+      addElement(element);
     });
   };
-  showData();
+  showData(); // load data
 });
